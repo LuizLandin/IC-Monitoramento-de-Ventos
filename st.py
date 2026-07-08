@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from streamlit import session_state as state
 from datetime import datetime
+import streamlit.components.v1 as components
 
 # =====================================================
 # PROCESSAMENTO DO ARQUIVO - DADOS DE VENTOS
@@ -184,7 +185,7 @@ def plotar_grafico_velocidade_vento(df_vento, inicio, fim, cor="#2ca02c", tema_e
     
     ax.plot(x_valores, y_valores, color=cor, marker='o', markersize=4, linewidth=2)
     
-    ax.set_xlabel("Numero da Leitura", fontsize=12)
+    ax.set_xlabel("Número da Leitura", fontsize=12)
     ax.set_ylabel("Velocidade do Vento (m/s)", fontsize=12)
     
     if len(x_valores) > 20:
@@ -193,13 +194,13 @@ def plotar_grafico_velocidade_vento(df_vento, inicio, fim, cor="#2ca02c", tema_e
         ax.set_xticks(ticks)
         ax.set_xticklabels([str(int(t)) for t in ticks], rotation=45, ha='right')
     
-    ax.axhline(media_geral, color='red', linestyle='--', linewidth=1, label=f'Media: {media_geral:.2f} m/s')
+    ax.axhline(media_geral, color='red', linestyle='--', linewidth=1, label=f'Média: {media_geral:.2f} m/s')
     ax.legend(loc='upper right')
     
     ax.text(0.02, 0.98, "Unidade: m/s", transform=ax.transAxes, fontsize=9,
             verticalalignment='top', bbox=dict(facecolor='white', alpha=0.7))
     
-    ax.text(0.98, 0.05, f"Max: {max_val:.2f} m/s | Min: {min_val:.2f} m/s", transform=ax.transAxes,
+    ax.text(0.98, 0.05, f"Máx: {max_val:.2f} m/s | Mín: {min_val:.2f} m/s", transform=ax.transAxes,
             fontsize=9, horizontalalignment='right', verticalalignment='bottom',
             bbox=dict(facecolor='white', alpha=0.8))
     
@@ -245,7 +246,7 @@ def plotar_grafico_onda(df_onda, inicio, fim, cor="#1f77b4", tema_escuro=False):
     ax.plot(x_valores, y_valores, color=cor, marker='o', markersize=4, linewidth=2)
     ax.fill_between(x_valores, y_valores, alpha=0.2, color=cor)
     
-    ax.set_xlabel("Numero da Leitura", fontsize=12)
+    ax.set_xlabel("Número da Leitura", fontsize=12)
     ax.set_ylabel("Altura da Onda (m)", fontsize=12)
     
     if len(x_valores) > 20:
@@ -254,13 +255,13 @@ def plotar_grafico_onda(df_onda, inicio, fim, cor="#1f77b4", tema_escuro=False):
         ax.set_xticks(ticks)
         ax.set_xticklabels([str(int(t)) for t in ticks], rotation=45, ha='right')
     
-    ax.axhline(media_geral, color='red', linestyle='--', linewidth=1, label=f'Media: {media_geral:.3f} m')
+    ax.axhline(media_geral, color='red', linestyle='--', linewidth=1, label=f'Média: {media_geral:.3f} m')
     ax.legend(loc='upper right')
     
     ax.text(0.02, 0.98, "Unidade: metros (m)", 
             transform=ax.transAxes, fontsize=9, verticalalignment='top', bbox=dict(facecolor='white', alpha=0.7))
     
-    ax.text(0.98, 0.05, f"Max: {max_val:.3f} m | Min: {min_val:.3f} m", transform=ax.transAxes,
+    ax.text(0.98, 0.05, f"Máx: {max_val:.3f} m | Mín: {min_val:.3f} m", transform=ax.transAxes,
             fontsize=9, horizontalalignment='right', verticalalignment='bottom',
             bbox=dict(facecolor='white', alpha=0.8))
     
@@ -270,7 +271,7 @@ def plotar_grafico_onda(df_onda, inicio, fim, cor="#1f77b4", tema_escuro=False):
     return fig
 
 def plotar_grafico_radar(df_vento, inicio, fim, cor="#d62728", tema_escuro=False):
-    """Plota grafico radar para direcao do vento"""
+    """Plota gráfico radar para direção do vento"""
     if df_vento.empty:
         return None
     
@@ -345,6 +346,7 @@ if 'page' not in state:
     state.df_vento = None
     state.df_onda = None
     state.popup_fechado = False
+    state.popup_pagina = 1  # 1 = primeira página, 2 = segunda página
     
     # Cores padrão
     state.cor_velocidade = "#2ca02c"
@@ -360,6 +362,27 @@ def go_to_visualization():
 def fechar_popup():
     state.popup_fechado = True
 
+def proxima_pagina_popup():
+    state.popup_pagina = 2
+
+def voltar_pagina_popup():
+    state.popup_pagina = 1
+
+# =====================================================
+# FUNÇÃO PARA SCROLL AO TOPO
+# =====================================================
+
+def scroll_to_top():
+    """Função para rolar a página para o topo"""
+    components.html(
+        """
+        <script>
+            window.scrollTo(0, 0);
+        </script>
+        """,
+        height=0
+    )
+
 # =====================================================
 # PAGINAS DO APLICATIVO
 # =====================================================
@@ -367,54 +390,88 @@ def fechar_popup():
 def upload_page():
     st.set_page_config(page_title="Monitoramento", layout="wide")
     
-    # Pop-up que bloqueia o conteudo principal
+    # Pop-up que bloqueia o conteúdo principal
     if not state.popup_fechado:
         with st.container():
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
-                st.markdown("""
-                <div style="background-color: #1e1e2e; padding: 35px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); text-align: center; border: 1px solid #4a4a5a; margin-top: 50px;">
-                    <h2 style="margin-top: 0; color: white; font-size: 24px;">Sobre este Trabalho</h2>
-                    <p style="margin: 20px 0; color: #e0e0e0; font-size: 15px; line-height: 1.6; text-align: justify;">
-                        Este sistema foi desenvolvido para o monitoramento e analise de dados de ventos, 
-                        com foco na medicao de velocidade e direcao. A plataforma permite o carregamento de 
-                        arquivos contendo dados coletados por equipamentos como anemometros, processando e 
-                        apresentando as informacoes de forma visual e interativa.
-                    </p>
-                    <p style="margin: 15px 0; color: #cccccc; font-size: 14px; line-height: 1.6; text-align: justify;">
-                        Os dados sao exibidos em graficos dinamicos que facilitam a interpretacao das condicoes 
-                        de vento, auxiliando na tomada de decisoes em atividades como navegacao, aviacao, 
-                        monitoramento ambiental e estudos meteorologicos.
-                    </p>
-                    <p style="margin: 15px 0; color: #cccccc; font-size: 14px; line-height: 1.6; text-align: justify;">
-                        Para utilizar o sistema, basta carregar um arquivo no formato correto. O sistema processara 
-                        os dados e disponibilizara as visualizacoes para analise. Certifique-se de que o arquivo 
-                        esta no formato adequado para garantir a correta interpretacao dos dados de vento.
-                    </p>
-                    <hr style="border-color: #4a4a5a; margin: 20px 0;">
-                    <h3 style="color: white; font-size: 18px; margin-bottom: 15px;">Equipe Responsavel</h3>
-                    <div style="text-align: left; color: #cccccc; font-size: 14px; line-height: 1.8;">
-                        <p style="margin: 5px 0;"><strong style="color: #e0e0e0;">Orientadores:</strong></p>
-                        <p style="margin: 3px 0; padding-left: 15px;">
-                            Prof. Dr. Evandro Fernandes da Cunha<br>
-                            <span style="color: #8888aa;">evandro.cunha@unesp.br</span>
+                # Página 1 do pop-up
+                if state.popup_pagina == 1:
+                    st.markdown("""
+                    <div style="background-color: #1e1e2e; padding: 35px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); text-align: center; border: 1px solid #4a4a5a; margin-top: 50px;">
+                        <h2 style="margin-top: 0; color: white; font-size: 24px;">Sobre este Trabalho</h2>
+                        <p style="margin: 20px 0; color: #e0e0e0; font-size: 15px; line-height: 1.6; text-align: justify;">
+                            Este sistema foi desenvolvido para o monitoramento e análise de dados de ventos, 
+                            com foco na medição de velocidade e direção. A plataforma permite o carregamento de 
+                            arquivos contendo dados coletados por equipamentos como anemômetros, processando e 
+                            apresentando as informações de forma visual e interativa.
                         </p>
-                        <p style="margin: 3px 0; padding-left: 15px;">
-                            Prof. Dr. Geraldo de Freitas Maciel<br>
-                            <span style="color: #8888aa;">geraldo.f.maciel@unesp.br</span>
+                        <p style="margin: 15px 0; color: #cccccc; font-size: 14px; line-height: 1.6; text-align: justify;">
+                            Os dados são exibidos em gráficos dinâmicos que facilitam a interpretação das condições 
+                            de vento, auxiliando na tomada de decisões em atividades como navegação, aviação, 
+                            monitoramento ambiental e estudos meteorológicos.
                         </p>
-                        <p style="margin: 10px 0 5px 0;"><strong style="color: #e0e0e0;">Aluno:</strong></p>
-                        <p style="margin: 3px 0; padding-left: 15px;">
-                            Luiz Eduardo Landin Rodrigues<br>
-                            <span style="color: #8888aa;">luiz.landin@unesp.br</span>
+                        <p style="margin: 15px 0; color: #cccccc; font-size: 14px; line-height: 1.6; text-align: justify;">
+                            Para utilizar o sistema, basta carregar um arquivo no formato correto. O sistema processará 
+                            os dados e disponibilizará as visualizações para análise. Certifique-se de que o arquivo 
+                            está no formato adequado para garantir a correta interpretação dos dados de vento.
                         </p>
                     </div>
-                </div>
-                """, unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
+                    
+                    # Botão "Próximo →"
+                    col1, col2, col3 = st.columns([1, 2, 1])
+                    with col2:
+                        if st.button("Próximo →", type="primary", use_container_width=True):
+                            proxima_pagina_popup()
+                            st.rerun()
                 
-                if st.button("OK, entendi", type="primary", use_container_width=True):
-                    fechar_popup()
-                    st.rerun()
+                # Página 2 do pop-up
+                elif state.popup_pagina == 2:
+                    st.markdown("""
+                    <div style="background-color: #1e1e2e; padding: 35px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); text-align: center; border: 1px solid #4a4a5a; margin-top: 50px;">
+                        <h2 style="margin-top: 0; color: white; font-size: 24px;">Instituição de Realização</h2>
+                        <p style="margin: 20px 0; color: #e0e0e0; font-size: 15px; line-height: 1.6; text-align: justify;">
+                            O presente trabalho foi realizado na Universidade Estadual Paulista Júlio de Mesquita Filho - UNESP, 
+                            Campus de Ilha Solteira, no Laboratório ProfÁgua - Laboratório de Hidrologia e Hidrometria - LH2.
+                        </p>
+                        <p style="margin: 15px 0; color: #cccccc; font-size: 14px; line-height: 1.6; text-align: justify;">
+                            O LH2 é um laboratório dedicado à pesquisa e ao desenvolvimento de tecnologias nas áreas de hidrologia, 
+                            hidrometria e monitoramento ambiental, contribuindo para o avanço do conhecimento científico e 
+                            para a formação de profissionais qualificados.
+                        </p>
+                        <hr style="border-color: #4a4a5a; margin: 20px 0;">
+                        <h3 style="color: white; font-size: 18px; margin-bottom: 15px;">Equipe Responsável</h3>
+                        <div style="text-align: left; color: #cccccc; font-size: 14px; line-height: 1.8;">
+                            <p style="margin: 5px 0;"><strong style="color: #e0e0e0;">Orientadores:</strong></p>
+                            <p style="margin: 3px 0; padding-left: 15px;">
+                                Prof. Dr. Evandro Fernandes da Cunha<br>
+                                <span style="color: #8888aa;">evandro.cunha@unesp.br</span>
+                            </p>
+                            <p style="margin: 3px 0; padding-left: 15px;">
+                                Prof. Dr. Geraldo de Freitas Maciel<br>
+                                <span style="color: #8888aa;">geraldo.f.maciel@unesp.br</span>
+                            </p>
+                            <p style="margin: 10px 0 5px 0;"><strong style="color: #e0e0e0;">Aluno:</strong></p>
+                            <p style="margin: 3px 0; padding-left: 15px;">
+                                Luiz Eduardo Landin Rodrigues<br>
+                                <span style="color: #8888aa;">luiz.landin@unesp.br</span>
+                            </p>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Botões "← Voltar" e "OK, entendi"
+                    col1, col2, col3 = st.columns([1, 1, 1])
+                    with col1:
+                        if st.button("← Voltar", use_container_width=True):
+                            voltar_pagina_popup()
+                            st.rerun()
+                    with col3:
+                        if st.button("OK, entendi", type="primary", use_container_width=True):
+                            fechar_popup()
+                            state.popup_pagina = 1  # Resetar para página 1
+                            st.rerun()
     
     if state.popup_fechado:
         st.title("Monitoramento - Carregar Dados")
@@ -441,20 +498,20 @@ def upload_page():
                         with st.expander("Preview dos dados de ONDA DO VENTO", expanded=False):
                             st.dataframe(state.df_onda[['indice', 'timestamp', 'valor_bruto']].head(10))
                             
-                            st.write("Estatisticas das ondas (em metros):")
+                            st.write("Estatísticas das ondas (em metros):")
                             col1, col2, col3 = st.columns(3)
                             with col1:
-                                st.metric("Minimo", f"{state.df_onda['valor_bruto'].min():.3f} m")
+                                st.metric("Mínimo", f"{state.df_onda['valor_bruto'].min():.3f} m")
                             with col2:
-                                st.metric("Maximo", f"{state.df_onda['valor_bruto'].max():.3f} m")
+                                st.metric("Máximo", f"{state.df_onda['valor_bruto'].max():.3f} m")
                             with col3:
-                                st.metric("Media", f"{state.df_onda['valor_bruto'].mean():.3f} m")
+                                st.metric("Média", f"{state.df_onda['valor_bruto'].mean():.3f} m")
                     
                     if st.button("Visualizar Dashboard", type="primary", use_container_width=True):
                         go_to_visualization()
                         st.rerun()
                 else:
-                    st.error("Nao foi possivel extrair dados do arquivo.")
+                    st.error("Não foi possível extrair dados do arquivo.")
                     
             except Exception as e:
                 st.error(f"Erro ao processar arquivo: {str(e)}")
@@ -463,6 +520,10 @@ def upload_page():
 
 def visualization_page():
     st.set_page_config(page_title="Dashboard", layout="wide")
+    
+    # Scroll para o topo da página
+    scroll_to_top()
+    
     st.title("Dashboard de Monitoramento")
     
     if (state.df_vento is None or state.df_vento.empty) and (state.df_onda is None or state.df_onda.empty):
@@ -489,66 +550,11 @@ def visualization_page():
         state.cor_radar = "#d62728"
     
     # =====================================================
-    # CSS PARA ESTILIZAR AS ABAS (FIXO PARA HOSPEDAGEM)
-    # =====================================================
-    
-    st.markdown("""
-    <style>
-    /* Estilo base para todas as abas */
-    .stTabs [data-baseweb="tab-list"] button {
-        font-weight: bold !important;
-        border-radius: 4px 4px 0 0 !important;
-        transition: all 0.3s ease !important;
-        border: none !important;
-        opacity: 0.9 !important;
-        background-color: rgba(200, 200, 200, 0.1) !important;
-        color: #666666 !important;
-    }
-    
-    /* Efeito hover */
-    .stTabs [data-baseweb="tab-list"] button:hover {
-        opacity: 1 !important;
-        transform: scale(1.02) !important;
-    }
-    
-    /* Aba 1 - Velocidade do Vento (Verde) */
-    .stTabs [data-baseweb="tab-list"] button:first-child {
-        background-color: #2ca02c25 !important;
-        color: #2ca02c !important;
-        border-bottom: 3px solid #2ca02c !important;
-    }
-    .stTabs [data-baseweb="tab-list"] button:first-child p {
-        color: #2ca02c !important;
-    }
-    
-    /* Aba 2 - Altura da Onda do Vento (Azul) */
-    .stTabs [data-baseweb="tab-list"] button:nth-child(2) {
-        background-color: #1f77b425 !important;
-        color: #1f77b4 !important;
-        border-bottom: 3px solid #1f77b4 !important;
-    }
-    .stTabs [data-baseweb="tab-list"] button:nth-child(2) p {
-        color: #1f77b4 !important;
-    }
-    
-    /* Aba 3 - Rosa dos Ventos (Vermelho) */
-    .stTabs [data-baseweb="tab-list"] button:nth-child(3) {
-        background-color: #d6272825 !important;
-        color: #d62728 !important;
-        border-bottom: 3px solid #d62728 !important;
-    }
-    .stTabs [data-baseweb="tab-list"] button:nth-child(3) p {
-        color: #d62728 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # =====================================================
     # SIDEBAR - Configurações com expanders (sem emojis)
     # =====================================================
     
     with st.sidebar:
-        st.header("Configuracoes")
+        st.header("Configurações")
         
         # ===== 1. VELOCIDADE DO VENTO =====
         with st.expander("1. Velocidade do Vento", expanded=False):
@@ -558,11 +564,12 @@ def visualization_page():
                 if nova_cor_vel != state.cor_velocidade:
                     state.cor_velocidade = nova_cor_vel
                     st.rerun()
+                
                 col1, col2 = st.columns(2)
                 with col1:
                     inicio_vel = st.number_input("Leitura inicial", 1, max_linhas_vento + 1, 1, key="inicio_vel")
                 with col2:
-                    fim_vel = st.number_input("Leitura final", 1, max_linhas_vento + 1, min(200, max_linhas_vento + 1), key="fim_vel")
+                    fim_vel = st.number_input("Leitura final", 1, max_linhas_vento + 1, min(200, max_linhas_vento + 1), key="fim_vel", help=f"Total de registros: {max_linhas_vento + 1}")
         
         # ===== 2. ALTURA DA ONDA =====
         with st.expander("2. Altura da Onda do Vento", expanded=False):
@@ -572,11 +579,12 @@ def visualization_page():
                 if nova_cor_onda != state.cor_onda:
                     state.cor_onda = nova_cor_onda
                     st.rerun()
+                
                 col1, col2 = st.columns(2)
                 with col1:
                     inicio_onda = st.number_input("Leitura inicial", 1, max_linhas_onda + 1, 1, key="inicio_onda")
                 with col2:
-                    fim_onda = st.number_input("Leitura final", 1, max_linhas_onda + 1, min(200, max_linhas_onda + 1), key="fim_onda")
+                    fim_onda = st.number_input("Leitura final", 1, max_linhas_onda + 1, min(200, max_linhas_onda + 1), key="fim_onda", help=f"Total de registros: {max_linhas_onda + 1}")
         
         # ===== 3. ROSA DOS VENTOS =====
         with st.expander("3. Rosa dos Ventos", expanded=False):
@@ -586,11 +594,12 @@ def visualization_page():
                 if nova_cor_radar != state.cor_radar:
                     state.cor_radar = nova_cor_radar
                     st.rerun()
+                
                 col1, col2 = st.columns(2)
                 with col1:
                     inicio_dir = st.number_input("Leitura inicial", 1, max_linhas_vento + 1, 1, key="inicio_dir")
                 with col2:
-                    fim_dir = st.number_input("Leitura final", 1, max_linhas_vento + 1, min(200, max_linhas_vento + 1), key="fim_dir")
+                    fim_dir = st.number_input("Leitura final", 1, max_linhas_vento + 1, min(200, max_linhas_vento + 1), key="fim_dir", help=f"Total de registros: {max_linhas_vento + 1}")
     
     # =====================================================
     # ABAS (TABS) - Navegação entre os gráficos
@@ -611,6 +620,10 @@ def visualization_page():
         st.header("Velocidade do Vento")
         
         if not state.df_vento.empty:
+            # Garantir que os valores estão dentro do intervalo
+            inicio_vel = max(1, min(inicio_vel, max_linhas_vento + 1))
+            fim_vel = max(1, min(fim_vel, max_linhas_vento + 1))
+            
             leitura_inicio = min(inicio_vel, fim_vel)
             leitura_fim = max(inicio_vel, fim_vel)
             
@@ -626,13 +639,13 @@ def visualization_page():
                     
                     col1, col2, col3 = st.columns(3)
                     with col1:
-                        st.info(f"Inicio do periodo: {data_inicio_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
+                        st.info(f"Início do período: {data_inicio_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
                     with col2:
-                        st.info(f"Fim do periodo: {data_fim_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
+                        st.info(f"Fim do período: {data_fim_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
                     with col3:
-                        st.info(f"Duracao do periodo: {formatar_duracao(duracao_periodo)}")
+                        st.info(f"Duração do período: {formatar_duracao(duracao_periodo)}")
                     
-                    st.caption(f"Leituras analisadas: {leitura_inicio} ate {leitura_fim}")
+                    st.caption(f"Leituras analisadas: {leitura_inicio} até {leitura_fim}")
             
             inicio_idx = inicio_vel - 1
             fim_idx = fim_vel - 1
@@ -644,13 +657,17 @@ def visualization_page():
             if fig:
                 st.pyplot(fig)
         else:
-            st.info("Sem dados de velocidade do vento disponiveis.")
+            st.info("Sem dados de velocidade do vento disponíveis.")
     
     # Aba 2: Altura da Onda do Vento
     with tabs[1]:
         st.header("Altura da Onda do Vento")
         
         if not state.df_onda.empty:
+            # Garantir que os valores estão dentro do intervalo
+            inicio_onda = max(1, min(inicio_onda, max_linhas_onda + 1))
+            fim_onda = max(1, min(fim_onda, max_linhas_onda + 1))
+            
             leitura_inicio = min(inicio_onda, fim_onda)
             leitura_fim = max(inicio_onda, fim_onda)
             
@@ -666,13 +683,13 @@ def visualization_page():
                     
                     col1, col2, col3 = st.columns(3)
                     with col1:
-                        st.info(f"Inicio do periodo: {data_inicio_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
+                        st.info(f"Início do período: {data_inicio_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
                     with col2:
-                        st.info(f"Fim do periodo: {data_fim_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
+                        st.info(f"Fim do período: {data_fim_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
                     with col3:
-                        st.info(f"Duracao do periodo: {formatar_duracao(duracao_periodo)}")
+                        st.info(f"Duração do período: {formatar_duracao(duracao_periodo)}")
                     
-                    st.caption(f"Leituras analisadas: {leitura_inicio} ate {leitura_fim}")
+                    st.caption(f"Leituras analisadas: {leitura_inicio} até {leitura_fim}")
             
             inicio_idx = inicio_onda - 1
             fim_idx = fim_onda - 1
@@ -684,13 +701,17 @@ def visualization_page():
             if fig:
                 st.pyplot(fig)
         else:
-            st.info("Sem dados de onda do vento disponiveis.")
+            st.info("Sem dados de onda do vento disponíveis.")
     
     # Aba 3: Rosa dos Ventos
     with tabs[2]:
         st.header("Rosa dos Ventos")
         
         if not state.df_vento.empty:
+            # Garantir que os valores estão dentro do intervalo
+            inicio_dir = max(1, min(inicio_dir, max_linhas_vento + 1))
+            fim_dir = max(1, min(fim_dir, max_linhas_vento + 1))
+            
             leitura_inicio = min(inicio_dir, fim_dir)
             leitura_fim = max(inicio_dir, fim_dir)
             
@@ -706,13 +727,13 @@ def visualization_page():
                     
                     col1, col2, col3 = st.columns(3)
                     with col1:
-                        st.info(f"Inicio do periodo: {data_inicio_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
+                        st.info(f"Início do período: {data_inicio_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
                     with col2:
-                        st.info(f"Fim do periodo: {data_fim_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
+                        st.info(f"Fim do período: {data_fim_periodo.strftime('%d/%m/%Y %H:%M:%S')}")
                     with col3:
-                        st.info(f"Duracao do periodo: {formatar_duracao(duracao_periodo)}")
+                        st.info(f"Duração do período: {formatar_duracao(duracao_periodo)}")
                     
-                    st.caption(f"Leituras analisadas: {leitura_inicio} ate {leitura_fim}")
+                    st.caption(f"Leituras analisadas: {leitura_inicio} até {leitura_fim}")
             
             inicio_idx = inicio_dir - 1
             fim_idx = fim_dir - 1
@@ -724,9 +745,9 @@ def visualization_page():
             if fig:
                 st.pyplot(fig)
         else:
-            st.info("Sem dados de direcao do vento disponiveis.")
+            st.info("Sem dados de direção do vento disponíveis.")
     
-    # Botao voltar (fora das abas)
+    # Botão voltar (fora das abas)
     st.divider()
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
