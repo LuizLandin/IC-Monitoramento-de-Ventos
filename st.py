@@ -489,13 +489,13 @@ def visualization_page():
         state.cor_radar = "#d62728"
     
     # =====================================================
-    # CSS PARA ESTILIZAR AS ABAS COM AS CORES DOS GRÁFICOS
+    # CSS PARA ESTILIZAR AS ABAS (FIXO PARA HOSPEDAGEM)
     # =====================================================
     
-    st.markdown(f"""
+    st.markdown("""
     <style>
     /* Estilo base para todas as abas */
-    .stTabs [data-baseweb="tab-list"] button {{
+    .stTabs [data-baseweb="tab-list"] button {
         font-weight: bold !important;
         border-radius: 4px 4px 0 0 !important;
         transition: all 0.3s ease !important;
@@ -503,43 +503,43 @@ def visualization_page():
         opacity: 0.9 !important;
         background-color: rgba(200, 200, 200, 0.1) !important;
         color: #666666 !important;
-    }}
+    }
     
     /* Efeito hover */
-    .stTabs [data-baseweb="tab-list"] button:hover {{
+    .stTabs [data-baseweb="tab-list"] button:hover {
         opacity: 1 !important;
         transform: scale(1.02) !important;
-    }}
+    }
     
-    /* Aba 1 - Velocidade do Vento */
-    .stTabs [data-baseweb="tab-list"] button:first-child {{
-        background-color: {state.cor_velocidade}15 !important;
-        color: {state.cor_velocidade} !important;
-        border-bottom: 3px solid {state.cor_velocidade} !important;
-    }}
-    .stTabs [data-baseweb="tab-list"] button:first-child p {{
-        color: {state.cor_velocidade} !important;
-    }}
+    /* Aba 1 - Velocidade do Vento (Verde) */
+    .stTabs [data-baseweb="tab-list"] button:first-child {
+        background-color: #2ca02c25 !important;
+        color: #2ca02c !important;
+        border-bottom: 3px solid #2ca02c !important;
+    }
+    .stTabs [data-baseweb="tab-list"] button:first-child p {
+        color: #2ca02c !important;
+    }
     
-    /* Aba 2 - Altura da Onda do Vento */
-    .stTabs [data-baseweb="tab-list"] button:nth-child(2) {{
-        background-color: {state.cor_onda}15 !important;
-        color: {state.cor_onda} !important;
-        border-bottom: 3px solid {state.cor_onda} !important;
-    }}
-    .stTabs [data-baseweb="tab-list"] button:nth-child(2) p {{
-        color: {state.cor_onda} !important;
-    }}
+    /* Aba 2 - Altura da Onda do Vento (Azul) */
+    .stTabs [data-baseweb="tab-list"] button:nth-child(2) {
+        background-color: #1f77b425 !important;
+        color: #1f77b4 !important;
+        border-bottom: 3px solid #1f77b4 !important;
+    }
+    .stTabs [data-baseweb="tab-list"] button:nth-child(2) p {
+        color: #1f77b4 !important;
+    }
     
-    /* Aba 3 - Rosa dos Ventos */
-    .stTabs [data-baseweb="tab-list"] button:nth-child(3) {{
-        background-color: {state.cor_radar}15 !important;
-        color: {state.cor_radar} !important;
-        border-bottom: 3px solid {state.cor_radar} !important;
-    }}
-    .stTabs [data-baseweb="tab-list"] button:nth-child(3) p {{
-        color: {state.cor_radar} !important;
-    }}
+    /* Aba 3 - Rosa dos Ventos (Vermelho) */
+    .stTabs [data-baseweb="tab-list"] button:nth-child(3) {
+        background-color: #d6272825 !important;
+        color: #d62728 !important;
+        border-bottom: 3px solid #d62728 !important;
+    }
+    .stTabs [data-baseweb="tab-list"] button:nth-child(3) p {
+        color: #d62728 !important;
+    }
     </style>
     """, unsafe_allow_html=True)
     
